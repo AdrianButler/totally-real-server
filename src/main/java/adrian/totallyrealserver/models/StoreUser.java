@@ -6,7 +6,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class StoreUser //TODO change name and see if it fixes error
@@ -19,7 +21,7 @@ public class StoreUser //TODO change name and see if it fixes error
 	private String email;
 
 	@OneToMany
-	private List<Product> cart;
+	private Set<CartItem> cart = new HashSet<>();
 
 	@OneToMany(mappedBy = "storeUser")
 	private List<StoreOrder> storeOrders;
@@ -53,12 +55,12 @@ public class StoreUser //TODO change name and see if it fixes error
 		this.email = email;
 	}
 
-	public List<Product> getCart()
+	public Set<CartItem> getCart()
 	{
 		return cart;
 	}
 
-	public void setCart(List<Product> cart)
+	public void setCart(Set<CartItem> cart)
 	{
 		this.cart = cart;
 	}

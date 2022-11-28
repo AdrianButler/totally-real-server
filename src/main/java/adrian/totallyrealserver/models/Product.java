@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Product //TODO add featured product?
@@ -94,4 +95,26 @@ public class Product //TODO add featured product?
 		this.id = id;
 	}
 
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+
+		Product product = (Product) o;
+
+		return Objects.equals(name, product.name);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return name != null ? name.hashCode() : 0;
+	}
 }
