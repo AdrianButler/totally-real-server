@@ -52,11 +52,6 @@ public class UserController
 	public boolean addToCart(@RequestBody HashMap<String, Long> requestBody) //requestBody should be ids
 	{
 
-//		List<String> list = new ArrayList<>(); todo remove this
-//		list.add("test");
-//		Product product2 = new Product("Testing3", "Testing3", 5, 5, list);
-//		productRepository.save(product2);
-
 
 		long productId = requestBody.get("productId");
 		long userId = requestBody.get("userId");
