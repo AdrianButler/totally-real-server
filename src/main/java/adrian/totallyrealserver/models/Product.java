@@ -1,11 +1,11 @@
 package adrian.totallyrealserver.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -17,6 +17,8 @@ public class Product //TODO add featured product?
 	private Long id;
 
 	private String name;
+
+	@Column(columnDefinition = "TEXT", length = 1000)
 	private String description;
 	private double price;
 	private double rating;
@@ -24,7 +26,9 @@ public class Product //TODO add featured product?
 	@ElementCollection
 	private List<String> images;
 
-	protected Product() {}
+	protected Product()
+	{
+	}
 
 	public Product(String name, String description, double price, double rating, List<String> images)
 	{
