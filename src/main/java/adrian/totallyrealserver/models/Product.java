@@ -1,11 +1,12 @@
 package adrian.totallyrealserver.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
+import jakarta.persistence.OneToMany;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,6 +18,8 @@ public class Product //TODO add featured product?
 	private Long id;
 
 	private String name;
+
+	@Column(columnDefinition = "TEXT", length = 1000)
 	private String description;
 	private double price;
 	private double rating;
@@ -24,15 +27,21 @@ public class Product //TODO add featured product?
 	@ElementCollection
 	private List<String> images;
 
-	protected Product() {}
+	@OneToMany(mappedBy = "product")
+	private List<Review> reviews;
 
-	public Product(String name, String description, double price, double rating, List<String> images)
+	protected Product()
+	{
+	}
+
+	public Product(String name, String description, double price, double rating, List<String> images, List<Review> reviews)
 	{
 		this.name = name;
 		this.description = description;
 		this.price = price;
 		this.rating = rating;
 		this.images = images;
+		this.reviews = reviews;
 	}
 
 	public String getName()
@@ -83,6 +92,16 @@ public class Product //TODO add featured product?
 	public void setImages(List<String> images)
 	{
 		this.images = images;
+	}
+
+	public List<Review> getReviews()
+	{
+		return reviews;
+	}
+
+	public void setReviews(List<Review> reviews)
+	{
+		this.reviews = reviews;
 	}
 
 	public Long getId()
