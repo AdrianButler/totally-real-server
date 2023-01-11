@@ -26,6 +26,8 @@ public class StoreUser //TODO change name and see if it fixes error
 	@OneToMany(mappedBy = "storeUser")
 	private List<StoreOrder> storeOrders;
 
+	@OneToMany(mappedBy = "user")
+	private List<Review> reviews;
 
 	protected StoreUser(){}
 
@@ -73,6 +75,26 @@ public class StoreUser //TODO change name and see if it fixes error
 	public void setOrders(List<StoreOrder> storeOrders)
 	{
 		this.storeOrders = storeOrders;
+	}
+
+	public List<StoreOrder> getStoreOrders()
+	{
+		return storeOrders;
+	}
+
+	public void setStoreOrders(List<StoreOrder> storeOrders)
+	{
+		this.storeOrders = storeOrders;
+	}
+
+	public List<Review> getReviews()
+	{
+		return reviews;
+	}
+
+	public void setReviews(List<Review> reviews)
+	{
+		this.reviews = reviews;
 	}
 
 	public Long getId()
