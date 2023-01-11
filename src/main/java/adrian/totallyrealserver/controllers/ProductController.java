@@ -2,6 +2,8 @@ package adrian.totallyrealserver.controllers;
 
 import adrian.totallyrealserver.models.Product;
 import adrian.totallyrealserver.repositories.ProductRepository;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,5 +25,21 @@ public class ProductController
 	public Product getProduct(@PathVariable Long id)
 	{
 		return productRepository.findById(id).get();
+	}
+
+	@GetMapping("/seed")
+	public void seedProduct()
+	{
+		String name = "";
+		String description = "";
+		double price = 0;
+		double rating = 0;
+
+		List<String> images = new ArrayList<>();
+		images.add("");
+
+		Product product = new Product(name, description, price, rating, images);
+
+		productRepository.save(product);
 	}
 }
