@@ -1,5 +1,6 @@
 package adrian.totallyrealserver.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,9 +16,11 @@ public class Review
 	private Long id;
 
 	@ManyToOne
+	@JsonIgnore
 	private StoreUser user;
 
 	@ManyToOne
+	@JsonIgnore
 	private Product product;
 
 	private int rating;
@@ -27,10 +30,10 @@ public class Review
 	protected Review()
 	{}
 
-	public Review(Long id, StoreUser user, int rating, String reviewBody)
+	public Review(StoreUser user, Product product, int rating, String reviewBody)
 	{
-		this.id = id;
 		this.user = user;
+		this.product = product;
 		this.rating = rating;
 		this.reviewBody = reviewBody;
 		this.dateReviewed = new Date();
