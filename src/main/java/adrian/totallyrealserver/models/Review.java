@@ -13,6 +13,7 @@ public class Review
 {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@JsonIgnore
 	private Long id;
 
 	@ManyToOne
@@ -25,10 +26,12 @@ public class Review
 
 	private int rating;
 	private String reviewBody;
+	private String author;
 	private Date dateReviewed;
 
 	protected Review()
-	{}
+	{
+	}
 
 	public Review(StoreUser user, Product product, int rating, String reviewBody)
 	{
@@ -36,6 +39,7 @@ public class Review
 		this.product = product;
 		this.rating = rating;
 		this.reviewBody = reviewBody;
+		this.author = user.getName();
 		this.dateReviewed = new Date();
 	}
 
@@ -67,6 +71,26 @@ public class Review
 	public void setReviewBody(String reviewBody)
 	{
 		this.reviewBody = reviewBody;
+	}
+
+	public Product getProduct()
+	{
+		return product;
+	}
+
+	public void setProduct(Product product)
+	{
+		this.product = product;
+	}
+
+	public String getAuthor()
+	{
+		return author;
+	}
+
+	public void setAuthor(String author)
+	{
+		this.author = author;
 	}
 
 	public Date getDateReviewed()
