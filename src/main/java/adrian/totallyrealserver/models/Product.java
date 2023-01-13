@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-public class Product //TODO add featured product?
+public class Product
 {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,14 +34,13 @@ public class Product //TODO add featured product?
 	{
 	}
 
-	public Product(String name, String description, double price, double rating, List<String> images, List<Review> reviews)
+	public Product(String name, String description, double price, double rating, List<String> images)
 	{
 		this.name = name;
 		this.description = description;
 		this.price = price;
 		this.rating = rating;
 		this.images = images;
-		this.reviews = reviews;
 	}
 
 	public String getName()
