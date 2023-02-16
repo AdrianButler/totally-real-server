@@ -31,7 +31,7 @@ public class UserController
 	@Autowired
 	SetUtils setUtils;
 
-	@PutMapping("/user")
+	@PutMapping("/signup")
 	public StoreUser createUser(@RequestBody StoreUser user)
 	{
 		StoreUser userFromSearch = storeUserRepository.findStoreUserByEmail(user.getEmail());
