@@ -7,15 +7,14 @@ import adrian.totallyrealserver.repositories.CartItemRepository;
 import adrian.totallyrealserver.repositories.ProductRepository;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
 import adrian.totallyrealserver.services.SetUtils;
+import java.util.HashMap;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.HashMap;
-import java.util.Set;
 
 @RestController
 public class UserController
@@ -32,7 +31,7 @@ public class UserController
 	@Autowired
 	SetUtils setUtils;
 
-	@PostMapping("/user")
+	@PostMapping("/signup")
 	public StoreUser createUser(@RequestBody StoreUser user)
 	{
 		StoreUser userFromSearch = storeUserRepository.findStoreUserByEmail(user.getEmail());
@@ -48,19 +47,47 @@ public class UserController
 		return newUser;
 	}
 
-	@PutMapping("/cart")
-	public boolean addToCart(@RequestBody HashMap<String, Long> requestBody) //requestBody should be ids
+	@PostMapping("/login")
+	public StoreUser loginUser(@RequestBody StoreUser user) // TODO implement a real auth system
 	{
+		System.out.println("HERE");
+		return storeUserRepository.findStoreUserByEmail(user.getEmail());
+	}
 
+	@PostMapping("/user/cart")
+	public Set<CartItem> getUserCart(@RequestBody StoreUser user) //TODO instead of using id use jwt
+	{
+		StoreUser userFromSearch = storeUserRepository.findById(user.getId()).get();
+		return userFromSearch.getCart();
+	}
 
+	@PostMapping("/user/cart-quantity")
+	public int getUserCartQuantity(@RequestBody StoreUser user) //TODO instead of using id use jwt
+	{
+		StoreUser userFromSearch = storeUserRepository.findById(user.getId()).get();
+
+		int cartQuantity = 0;
+
+		for (CartItem cartItem : userFromSearch.getCart())
+		{
+			cartQuantity += cartItem.getQuantity();
+		}
+
+		return cartQuantity;
+	}
+
+	@PutMapping("/cart")
+	public boolean addToCart(@RequestBody HashMap<String, Long> requestBody) //requestBody should be ids and quantity
+	{
 		long productId = requestBody.get("productId");
 		long userId = requestBody.get("userId");
+		int quantity = Math.toIntExact(requestBody.get("quantity"));
 
 		Product product = productRepository.findById(productId).get();
 		StoreUser user = storeUserRepository.findById(userId).get();
 
 		Set<CartItem> cart = user.getCart();
-		CartItem cartItem = new CartItem(1, product);
+		CartItem cartItem = new CartItem(quantity, product);
 
 		CartItem cartItemFromSearch = setUtils.searchSet(cart, cartItem);
 
@@ -68,7 +95,7 @@ public class UserController
 		{
 			cart.remove(cartItemFromSearch);
 			cartItem.setId(cartItemFromSearch.getId());
-			cartItem.setQuantity(cartItemFromSearch.getQuantity() + 1);
+			cartItem.setQuantity(cartItemFromSearch.getQuantity() + quantity);
 		}
 
 		cartItemRepository.save(cartItem);
