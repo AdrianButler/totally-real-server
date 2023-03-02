@@ -48,7 +48,15 @@ public class AuthController
 		// Send OTP email to user
 
 		final String email = requestBody.get("email");
-		emailAuthService.sendOneTimePassword(storeUserRepository.findStoreUserByEmail(email));
+
+		StoreUser storeUser = storeUserRepository.findStoreUserByEmail(email);
+
+		if (storeUser == null)
+		{
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
+		}
+
+		emailAuthService.sendOneTimePassword(storeUser);
 	}
 
 	@PostMapping("/login/verify")
