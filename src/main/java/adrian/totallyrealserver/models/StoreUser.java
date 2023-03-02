@@ -5,20 +5,26 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Entity
-public class StoreUser //TODO change name and see if it fixes error
+public class StoreUser
 {
+	private static final long OTP_DURATION = 300000; // five minutes
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	private String name;
 	private String email;
+
+	private String oneTimePassword;
+
+	private Date otpRequestTime; // when was the otp requested
 
 	@OneToMany
 	private Set<CartItem> cart = new HashSet<>();
@@ -35,6 +41,16 @@ public class StoreUser //TODO change name and see if it fixes error
 	{
 		this.name = name;
 		this.email = email;
+	}
+
+	public Long getId()
+	{
+		return id;
+	}
+
+	public void setId(Long id)
+	{
+		this.id = id;
 	}
 
 	public String getName()
@@ -57,6 +73,26 @@ public class StoreUser //TODO change name and see if it fixes error
 		this.email = email;
 	}
 
+	public String getOneTimePassword()
+	{
+		return oneTimePassword;
+	}
+
+	public void setOneTimePassword(String oneTimePassword)
+	{
+		this.oneTimePassword = oneTimePassword;
+	}
+
+	public Date getOtpRequestTime()
+	{
+		return otpRequestTime;
+	}
+
+	public void setOtpRequestTime(Date otpRequestTime)
+	{
+		this.otpRequestTime = otpRequestTime;
+	}
+
 	public Set<CartItem> getCart()
 	{
 		return cart;
@@ -65,16 +101,6 @@ public class StoreUser //TODO change name and see if it fixes error
 	public void setCart(Set<CartItem> cart)
 	{
 		this.cart = cart;
-	}
-
-	public List<StoreOrder> getOrders()
-	{
-		return storeOrders;
-	}
-
-	public void setOrders(List<StoreOrder> storeOrders)
-	{
-		this.storeOrders = storeOrders;
 	}
 
 	public List<StoreOrder> getStoreOrders()
@@ -96,15 +122,4 @@ public class StoreUser //TODO change name and see if it fixes error
 	{
 		this.reviews = reviews;
 	}
-
-	public Long getId()
-	{
-		return id;
-	}
-
-	public void setId(Long id)
-	{
-		this.id = id;
-	}
-
 }
