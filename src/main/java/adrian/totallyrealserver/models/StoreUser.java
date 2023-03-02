@@ -13,7 +13,6 @@ import java.util.Set;
 @Entity
 public class StoreUser
 {
-	private static final long OTP_DURATION = 300000; // five minutes
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +23,7 @@ public class StoreUser
 
 	private String oneTimePassword;
 
-	private Date otpRequestTime; // when was the otp requested
+	private Date otpRequestDate; // when was the otp requested
 
 	@OneToMany
 	private Set<CartItem> cart = new HashSet<>();
@@ -83,14 +82,14 @@ public class StoreUser
 		this.oneTimePassword = oneTimePassword;
 	}
 
-	public Date getOtpRequestTime()
+	public Date getOtpRequestDate()
 	{
-		return otpRequestTime;
+		return otpRequestDate;
 	}
 
-	public void setOtpRequestTime(Date otpRequestTime)
+	public void setOtpRequestDate(Date otpRequestDate)
 	{
-		this.otpRequestTime = otpRequestTime;
+		this.otpRequestDate = otpRequestDate;
 	}
 
 	public Set<CartItem> getCart()

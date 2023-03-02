@@ -65,7 +65,7 @@ public class EmailAuthService
 		String encodedOneTimePassword = passwordEncoder.encode(oneTimePassword);
 
 		storeUser.setOneTimePassword(encodedOneTimePassword);
-		storeUser.setOtpRequestTime(new Date());
+		storeUser.setOtpRequestDate(new Date());
 
 		storeUserRepository.save(storeUser);
 	}
