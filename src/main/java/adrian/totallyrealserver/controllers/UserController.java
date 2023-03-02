@@ -9,7 +9,6 @@ import adrian.totallyrealserver.repositories.StoreUserRepository;
 import adrian.totallyrealserver.services.SetUtils;
 import java.util.HashMap;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,39 +18,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserController
 {
-	@Autowired
-	StoreUserRepository storeUserRepository;
+	final StoreUserRepository storeUserRepository;
 
-	@Autowired
-	ProductRepository productRepository;
+	final ProductRepository productRepository;
 
-	@Autowired
-	CartItemRepository cartItemRepository;
+	final CartItemRepository cartItemRepository;
 
-	@Autowired
-	SetUtils setUtils;
+	final SetUtils setUtils;
 
-	@PostMapping("/signup")
-	public StoreUser createUser(@RequestBody StoreUser user)
+	public UserController(StoreUserRepository storeUserRepository, ProductRepository productRepository, CartItemRepository cartItemRepository, SetUtils setUtils)
 	{
-		StoreUser userFromSearch = storeUserRepository.findStoreUserByEmail(user.getEmail());
-
-		if (userFromSearch != null) // if user already exists return that user
-		{
-			return userFromSearch;
-		}
-
-		StoreUser newUser = new StoreUser(user.getName(), user.getEmail());
-		storeUserRepository.save(newUser);
-
-		return newUser;
-	}
-
-	@PostMapping("/login")
-	public StoreUser loginUser(@RequestBody StoreUser user) // TODO implement a real auth system
-	{
-		System.out.println("HERE");
-		return storeUserRepository.findStoreUserByEmail(user.getEmail());
+		this.storeUserRepository = storeUserRepository;
+		this.productRepository = productRepository;
+		this.cartItemRepository = cartItemRepository;
+		this.setUtils = setUtils;
 	}
 
 	@PostMapping("/user/cart")
