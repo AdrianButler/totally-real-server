@@ -29,19 +29,17 @@ public class AuthController
 	}
 
 	@PostMapping("/signup")
-	public StoreUser createUser(@RequestBody StoreUser user)
+	public void createUser(@RequestBody StoreUser user)
 	{
 		StoreUser userFromSearch = storeUserRepository.findStoreUserByEmail(user.getEmail());
 
 		if (userFromSearch != null) // if user already exists return that user
 		{
-			return userFromSearch;
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
 		}
 
 		StoreUser newUser = new StoreUser(user.getName(), user.getEmail());
 		storeUserRepository.save(newUser);
-
-		return newUser;
 	}
 
 	@PostMapping("/login")
