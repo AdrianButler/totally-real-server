@@ -6,29 +6,31 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import net.bytebuddy.utility.RandomString;
-
 @Service
 public class EmailAuthService
 {
-	@Autowired
-	JavaMailSender mailSender;
+	final JavaMailSender mailSender;
 
-	@Autowired
-	PasswordEncoder passwordEncoder;
+	final PasswordEncoder passwordEncoder;
 
-	@Autowired
-	StoreUserRepository storeUserRepository;
+	final StoreUserRepository storeUserRepository;
 
 	@Value("${MAIL_USERNAME}")
 	private String fromAddress;
+
+	public EmailAuthService(JavaMailSender mailSender, PasswordEncoder passwordEncoder, StoreUserRepository storeUserRepository)
+	{
+		this.mailSender = mailSender;
+		this.passwordEncoder = passwordEncoder;
+		this.storeUserRepository = storeUserRepository;
+	}
 
 	public void sendOneTimePassword(StoreUser storeUser)
 	{
