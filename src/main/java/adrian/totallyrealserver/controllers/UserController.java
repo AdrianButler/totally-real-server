@@ -8,6 +8,7 @@ import adrian.totallyrealserver.repositories.ProductRepository;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
 import adrian.totallyrealserver.services.SetUtils;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,7 +58,7 @@ public class UserController
 	}
 
 	@PutMapping("/cart")
-	public boolean addToCart(@RequestBody HashMap<String, Long> requestBody) //requestBody should be ids and quantity
+	public boolean addToCart(@RequestBody Map<String, Long> requestBody) //requestBody should be ids and quantity
 	{
 		long productId = requestBody.get("productId");
 		long userId = requestBody.get("userId");
