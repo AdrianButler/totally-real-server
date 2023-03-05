@@ -1,4 +1,4 @@
-package adrian.totallyrealserver.dtos;
+package adrian.totallyrealserver.dtos.auth;
 
 import jakarta.validation.constraints.NotBlank;
 

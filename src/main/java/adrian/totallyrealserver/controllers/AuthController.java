@@ -1,7 +1,7 @@
 package adrian.totallyrealserver.controllers;
 
-import adrian.totallyrealserver.dtos.LoginRequest;
-import adrian.totallyrealserver.dtos.SignUpRequest;
+import adrian.totallyrealserver.dtos.auth.LoginRequest;
+import adrian.totallyrealserver.dtos.auth.SignUpRequest;
 import adrian.totallyrealserver.models.StoreUser;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
 import adrian.totallyrealserver.services.EmailAuthService;
