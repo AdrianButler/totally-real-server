@@ -5,7 +5,6 @@ import adrian.totallyrealserver.dtos.auth.SignUpRequest;
 import adrian.totallyrealserver.models.StoreUser;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
 import adrian.totallyrealserver.services.EmailAuthService;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,7 +34,7 @@ public class AuthController
 
 	@PostMapping("/signup")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void createUser(@Valid @RequestBody SignUpRequest signUpRequest)
+	public void createUser(@RequestBody SignUpRequest signUpRequest)
 	{
 		if (storeUserRepository.existsByEmail(signUpRequest.getEmail())) // check if user with email already exists
 		{
@@ -47,7 +46,7 @@ public class AuthController
 	}
 
 	@PostMapping("/login")
-	public void loginUser(@Valid @Email @RequestBody String email)
+	public void loginUser(@Email @RequestBody String email)
 	{
 		// Send OTP email to user
 
@@ -62,7 +61,7 @@ public class AuthController
 	}
 
 	@PostMapping("/login/verify")
-	public StoreUser verifyLogin(@Valid @RequestBody LoginRequest loginRequest)
+	public StoreUser verifyLogin(@RequestBody LoginRequest loginRequest)
 	{
 		String email = loginRequest.getEmail();
 		String oneTimePassword = loginRequest.getOneTimePassword();
