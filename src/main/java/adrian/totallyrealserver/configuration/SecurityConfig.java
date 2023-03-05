@@ -2,7 +2,6 @@ package adrian.totallyrealserver.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -20,25 +19,33 @@ public class SecurityConfig
 	SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception
 	{
 		return httpSecurity.authorizeHttpRequests(authorizeRequests -> authorizeRequests
-				.requestMatchers("").authenticated()
-				.anyRequest().permitAll()).httpBasic(Customizer.withDefaults())
-				.csrf().disable()
+						.requestMatchers("/auth/**")
+						.permitAll()
+						.anyRequest()
+						.authenticated())
+				.httpBasic()
+				.and()
+				.csrf()
+				.disable()
 				.build();
 	}
 
 	@Bean
-	public InMemoryUserDetailsManager userDetailsService() {
-		UserDetails user =
-				User.withUsername("user")
-						.password(passwordEncoder().encode("password"))
-						.roles("USER").build();
+	public InMemoryUserDetailsManager userDetailsService()
+	{
+		UserDetails user = User.builder()
+				.username("user")
+				.password(passwordEncoder().encode("password"))
+				.roles()
+				.build();
+
 		return new InMemoryUserDetailsManager(user);
 	}
 
 	@Bean
-	public PasswordEncoder passwordEncoder() {
+	public PasswordEncoder passwordEncoder()
+	{
 		return new BCryptPasswordEncoder();
 	}
-
 
 }
