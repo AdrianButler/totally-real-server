@@ -7,25 +7,30 @@ import adrian.totallyrealserver.repositories.CartItemRepository;
 import adrian.totallyrealserver.repositories.ProductRepository;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
 import adrian.totallyrealserver.services.SetUtils;
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
+@RequestMapping("/user")
 public class UserController
 {
-	final StoreUserRepository storeUserRepository;
+	private final StoreUserRepository storeUserRepository;
 
-	final ProductRepository productRepository;
+	private final ProductRepository productRepository;
 
-	final CartItemRepository cartItemRepository;
+	private final CartItemRepository cartItemRepository;
 
-	final SetUtils setUtils;
+	private final SetUtils setUtils;
 
 	public UserController(StoreUserRepository storeUserRepository, ProductRepository productRepository, CartItemRepository cartItemRepository, SetUtils setUtils)
 	{
@@ -35,26 +40,13 @@ public class UserController
 		this.setUtils = setUtils;
 	}
 
-	@PostMapping("/user/cart")
-	public Set<CartItem> getUserCart(@RequestBody StoreUser user) //TODO instead of using id use jwt
+	@PostMapping("/cart")
+	public Set<CartItem> getUserCart(@Valid @RequestBody Long id) //TODO instead of using id use jwt
 	{
-		StoreUser userFromSearch = storeUserRepository.findById(user.getId()).get();
+		StoreUser userFromSearch = storeUserRepository.findById(id)
+				.orElseThrow(() ->
+						new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 		return userFromSearch.getCart();
-	}
-
-	@PostMapping("/user/cart-quantity")
-	public int getUserCartQuantity(@RequestBody StoreUser user) //TODO instead of using id use jwt
-	{
-		StoreUser userFromSearch = storeUserRepository.findById(user.getId()).get();
-
-		int cartQuantity = 0;
-
-		for (CartItem cartItem : userFromSearch.getCart())
-		{
-			cartQuantity += cartItem.getQuantity();
-		}
-
-		return cartQuantity;
 	}
 
 	@PutMapping("/cart")
@@ -64,8 +56,10 @@ public class UserController
 		long userId = requestBody.get("userId");
 		int quantity = Math.toIntExact(requestBody.get("quantity"));
 
-		Product product = productRepository.findById(productId).get();
-		StoreUser user = storeUserRepository.findById(userId).get();
+		Product product = productRepository.findById(productId)
+				.get();
+		StoreUser user = storeUserRepository.findById(userId)
+				.get();
 
 		Set<CartItem> cart = user.getCart();
 		CartItem cartItem = new CartItem(quantity, product);
@@ -94,8 +88,20 @@ public class UserController
 		return true;
 	}
 
+	@PostMapping("/cart-quantity")
+	public int getUserCartQuantity(@RequestBody StoreUser user) //TODO instead of using id use jwt
+	{
+		StoreUser userFromSearch = storeUserRepository.findById(user.getId())
+				.get();
 
+		int cartQuantity = 0;
 
+		for (CartItem cartItem : userFromSearch.getCart())
+		{
+			cartQuantity += cartItem.getQuantity();
+		}
 
+		return cartQuantity;
+	}
 
 }

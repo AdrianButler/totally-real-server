@@ -60,6 +60,15 @@ public class EmailAuthService
 		mailSender.send(message);
 	}
 
+	public boolean checkIfOtpExpired(Date otpRequestDate)
+	{
+		final long OTP_DURATION = 300000; // five minutes
+
+		long otpExpiration = otpRequestDate.getTime() + OTP_DURATION;
+
+		return otpExpiration < new Date().getTime();
+	}
+
 	private void saveOneTimePassword(StoreUser storeUser, String oneTimePassword)
 	{
 		String encodedOneTimePassword = passwordEncoder.encode(oneTimePassword);
@@ -69,4 +78,5 @@ public class EmailAuthService
 
 		storeUserRepository.save(storeUser);
 	}
+
 }

@@ -1,18 +1,22 @@
 package adrian.totallyrealserver.controllers;
 
+import adrian.totallyrealserver.dtos.auth.LoginRequest;
+import adrian.totallyrealserver.dtos.auth.SignUpRequest;
 import adrian.totallyrealserver.models.StoreUser;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
 import adrian.totallyrealserver.services.EmailAuthService;
-import java.util.Date;
-import java.util.Map;
+import jakarta.validation.constraints.Email;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
+@RequestMapping("/auth")
 public class AuthController
 {
 	final StoreUserRepository storeUserRepository;
@@ -29,37 +33,42 @@ public class AuthController
 	}
 
 	@PostMapping("/signup")
-	public void createUser(@RequestBody StoreUser user)
+	@ResponseStatus(HttpStatus.CREATED)
+	public void createUser(@RequestBody SignUpRequest signUpRequest)
 	{
-		StoreUser userFromSearch = storeUserRepository.findStoreUserByEmail(user.getEmail());
-
-		if (userFromSearch != null) // if user already exists return that user
+		if (storeUserRepository.existsByEmail(signUpRequest.getEmail())) // check if user with email already exists
 		{
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
 		}
 
-		StoreUser newUser = new StoreUser(user.getName(), user.getEmail());
+		StoreUser newUser = new StoreUser(signUpRequest.getName(), signUpRequest.getEmail());
 		storeUserRepository.save(newUser);
 	}
 
 	@PostMapping("/login")
-	public void loginUser(@RequestBody Map<String, String> requestBody)
+	public void loginUser(@Email @RequestBody String email)
 	{
 		// Send OTP email to user
 
-		final String email = requestBody.get("email");
-		emailAuthService.sendOneTimePassword(storeUserRepository.findStoreUserByEmail(email));
+		StoreUser storeUser = storeUserRepository.findStoreUserByEmail(email);
+
+		if (storeUser == null)
+		{
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
+		}
+
+		emailAuthService.sendOneTimePassword(storeUser);
 	}
 
 	@PostMapping("/login/verify")
-	public StoreUser verifyLogin(@RequestBody Map<String, String> requestBody)
+	public StoreUser verifyLogin(@RequestBody LoginRequest loginRequest)
 	{
-		String email = requestBody.get("email");
-		String oneTimePassword = requestBody.get("oneTimePassword");
+		String email = loginRequest.getEmail();
+		String oneTimePassword = loginRequest.getOneTimePassword();
 
 		StoreUser storeUser = storeUserRepository.findStoreUserByEmail(email);
 
-		if (checkIfOtpExpired(storeUser.getOtpRequestDate()))
+		if (emailAuthService.checkIfOtpExpired(storeUser.getOtpRequestDate()))
 		{
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "One time password has expired");
 		}
@@ -70,15 +79,6 @@ public class AuthController
 		}
 
 		return storeUser;
-	}
-
-	private boolean checkIfOtpExpired(Date otpRequestDate)
-	{
-		final long OTP_DURATION = 300000; // five minutes
-
-		long otpExpiration = otpRequestDate.getTime() + OTP_DURATION;
-
-		return otpExpiration < new Date().getTime();
 	}
 
 }
