@@ -1,10 +1,11 @@
 package adrian.totallyrealserver.controllers;
 
-import adrian.totallyrealserver.dtos.auth.LoginRequest;
+import adrian.totallyrealserver.dtos.auth.VerifyRequest;
 import adrian.totallyrealserver.dtos.auth.SignUpRequest;
 import adrian.totallyrealserver.models.StoreUser;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
 import adrian.totallyrealserver.services.EmailAuthService;
+import adrian.totallyrealserver.services.JwtService;
 import jakarta.validation.constraints.Email;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,17 +20,20 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/auth")
 public class AuthController
 {
-	final StoreUserRepository storeUserRepository;
+	private final StoreUserRepository storeUserRepository;
 
-	final EmailAuthService emailAuthService;
+	private final EmailAuthService emailAuthService;
 
-	final PasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
 
-	public AuthController(StoreUserRepository storeUserRepository, EmailAuthService emailAuthService, PasswordEncoder passwordEncoder)
+	private final JwtService jwtService;
+
+	public AuthController(StoreUserRepository storeUserRepository, EmailAuthService emailAuthService, PasswordEncoder passwordEncoder, JwtService jwtService)
 	{
 		this.storeUserRepository = storeUserRepository;
 		this.emailAuthService = emailAuthService;
 		this.passwordEncoder = passwordEncoder;
+		this.jwtService = jwtService;
 	}
 
 	@PostMapping("/signup")
@@ -43,6 +47,19 @@ public class AuthController
 
 		StoreUser newUser = new StoreUser(signUpRequest.getName(), signUpRequest.getEmail());
 		storeUserRepository.save(newUser);
+
+		emailAuthService.sendOneTimePassword(newUser);
+	}
+
+	@PostMapping("/signup/verify")
+	@ResponseStatus(HttpStatus.CREATED)
+	public String verifySignUp(@RequestBody VerifyRequest verifyRequest)
+	{
+		StoreUser storeUser = verifyOTP(verifyRequest);
+
+		String jsonWebToken = jwtService.generateToken(storeUser);
+
+		return jsonWebToken;
 	}
 
 	@PostMapping("/login")
@@ -61,10 +78,19 @@ public class AuthController
 	}
 
 	@PostMapping("/login/verify")
-	public StoreUser verifyLogin(@RequestBody LoginRequest loginRequest)
+	public String verifyLogin(@RequestBody VerifyRequest verifyRequest)
 	{
-		String email = loginRequest.getEmail();
-		String oneTimePassword = loginRequest.getOneTimePassword();
+		StoreUser storeUser = verifyOTP(verifyRequest);
+
+		String jsonWebToken = jwtService.generateToken(storeUser);
+
+		return jsonWebToken;
+	}
+
+	private StoreUser verifyOTP(@RequestBody VerifyRequest verifyRequest) // TODO refactor this to email service
+	{
+		String email = verifyRequest.getEmail();
+		String oneTimePassword = verifyRequest.getOneTimePassword();
 
 		StoreUser storeUser = storeUserRepository.findStoreUserByEmail(email);
 
