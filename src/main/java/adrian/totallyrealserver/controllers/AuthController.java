@@ -57,9 +57,7 @@ public class AuthController
 	{
 		StoreUser storeUser = verifyOTP(verifyRequest);
 
-		String jsonWebToken = jwtService.generateToken(storeUser);
-
-		return jsonWebToken;
+		return jwtService.generateToken(storeUser);
 	}
 
 	@PostMapping("/login")
@@ -82,9 +80,7 @@ public class AuthController
 	{
 		StoreUser storeUser = verifyOTP(verifyRequest);
 
-		String jsonWebToken = jwtService.generateToken(storeUser);
-
-		return jsonWebToken;
+		return jwtService.generateToken(storeUser);
 	}
 
 	private StoreUser verifyOTP(@RequestBody VerifyRequest verifyRequest) // TODO refactor this to email service
