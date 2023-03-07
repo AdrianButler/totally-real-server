@@ -52,7 +52,7 @@ public class AuthController
 	}
 
 	@PostMapping("/signup/verify")
-	@ResponseStatus(HttpStatus.CREATED)
+	@ResponseStatus(HttpStatus.CREATED) //TODO return DTO so the json has a property labeled token instead of raw string
 	public String verifySignUp(@RequestBody VerifyRequest verifyRequest)
 	{
 		StoreUser storeUser = verifyOTP(verifyRequest);
