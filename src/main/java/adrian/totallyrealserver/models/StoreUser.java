@@ -24,6 +24,8 @@ public class StoreUser implements UserDetails
 	private String name;
 	private String email;
 
+	private boolean isVerified;
+
 	private String oneTimePassword;
 
 	private Date otpRequestDate; // when was the otp requested
@@ -75,6 +77,16 @@ public class StoreUser implements UserDetails
 	public void setEmail(String email)
 	{
 		this.email = email;
+	}
+
+	public boolean isVerified()
+	{
+		return isVerified;
+	}
+
+	public void setVerified(boolean verified)
+	{
+		isVerified = verified;
 	}
 
 	public String getOneTimePassword()
