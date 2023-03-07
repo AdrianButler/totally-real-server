@@ -16,8 +16,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService
 {
-	@Value("${JWT_SECRET_KEY}")
-	private static final String SECRET_KEY = "";
+	private final String SECRET_KEY;
+
+	public JwtService(@Value("${JWT_SECRET_KEY}") String SECRET_KEY)
+	{
+		this.SECRET_KEY = SECRET_KEY;
+	}
 
 	public String extractEmail(String token)
 	{
