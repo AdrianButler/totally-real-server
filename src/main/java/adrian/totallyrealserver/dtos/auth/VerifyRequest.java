@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
-public class LoginRequest
+public class VerifyRequest
 {
 	@NotBlank(message = "Email is mandatory")
 	@Email(message = "Email should be valid")
