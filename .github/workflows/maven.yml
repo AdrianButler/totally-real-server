@@ -5,6 +5,7 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: totally-real-server
 
     steps:
       - name: test secret
