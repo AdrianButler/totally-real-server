@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,7 +22,10 @@ public class Product
 
 	@Column(columnDefinition = "TEXT", length = 1000)
 	private String description;
+
 	private double price;
+
+	@Transient
 	private double rating;
 
 	@ElementCollection
@@ -81,11 +85,6 @@ public class Product
 			rating += review.getRating();
 		}
 		return rating / reviews.size();
-	}
-
-	public void setRating(double rating)
-	{
-		this.rating = rating;
 	}
 
 	public List<String> getImages()
