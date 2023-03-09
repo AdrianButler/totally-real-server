@@ -58,7 +58,7 @@ public class CartController
 		return true;
 	}
 
-	@PostMapping("/cart-quantity")
+	@GetMapping("/cart-quantity")
 	public int getUserCartQuantity(Principal principal) //TODO instead of using id use jwt
 	{
 		return cartService.getStoreUserCartQuantity(principal.getName());
