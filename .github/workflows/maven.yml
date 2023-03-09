@@ -8,14 +8,7 @@ jobs:
 
     steps:
       - name: test secret
-        run: |
-          echo ${{ secrets.DB_DATASOURCE }}
-          echo ${{ secrets.DB_USERNAME }}
-          echo ${{ secrets.DB_PASSWORD }}
-          echo ${{ secrets.MAIL_USERNAME }}
-          echo ${{ secrets.MAIL_PASSWORD }}
-          echo ${{ secrets.JWT_SECRET_KEY }}
-     
+        run: printenv
       - uses: actions/checkout@v3
       - name: Set up JDK 19
         uses: actions/setup-java@v3
