@@ -29,7 +29,7 @@ public class SecurityConfig
 	SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception
 	{
 		return httpSecurity.authorizeHttpRequests()
-				.requestMatchers("/auth/**")
+				.requestMatchers("/auth/**", "/product/**")
 				.permitAll()
 				.anyRequest()
 				.authenticated()
