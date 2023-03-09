@@ -8,6 +8,14 @@ jobs:
     environment: totally-real-server
 
     steps:
+      - name: Print secrets
+        run: |
+          echo "DB_DATASOURCE: ${{ secrets.DB_DATASOURCE }}"
+          echo "DB_USERNAME: ${{ secrets.DB_USERNAME }}"
+          echo "DB_PASSWORD: ${{ secrets.DB_PASSWORD }}"
+          echo "MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}"
+          echo "MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}"
+          echo "JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}"
       - name: test secret
         run: printenv
       - uses: actions/checkout@v3
