@@ -6,7 +6,6 @@ import adrian.totallyrealserver.models.Product;
 import adrian.totallyrealserver.repositories.ProductRepository;
 import adrian.totallyrealserver.services.CartService;
 import java.security.Principal;
-import java.util.HashMap;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -52,14 +51,17 @@ public class CartController
 		cartService.addToStoreUserCart(cartItem, principal.getName());
 	}
 
-	@DeleteMapping("/cart") //TODO create this (copy method above and modify)
-	public boolean removeFromCart(@RequestBody HashMap<String, Long> requestBody) // requestBody should be ids
+	@DeleteMapping("/cart")
+	public void removeFromCart(@RequestBody long productId, Principal principal) // requestBody should be ids
 	{
-		return true;
+		Product product = productRepository.findById(productId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product with given ID not found"));
+
+		cartService.deleteProductFromUserStoreCart(product, principal.getName());
 	}
 
 	@GetMapping("/cart-quantity")
-	public int getUserCartQuantity(Principal principal) //TODO instead of using id use jwt
+	public int getUserCartQuantity(Principal principal)
 	{
 		return cartService.getStoreUserCartQuantity(principal.getName());
 	}

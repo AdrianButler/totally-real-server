@@ -1,6 +1,7 @@
 package adrian.totallyrealserver.services;
 
 import adrian.totallyrealserver.models.CartItem;
+import adrian.totallyrealserver.models.Product;
 import adrian.totallyrealserver.models.StoreUser;
 import adrian.totallyrealserver.repositories.CartItemRepository;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
@@ -59,6 +60,23 @@ public class CartService
 		}
 
 		return cartQuantity;
+	}
+
+	public void deleteProductFromUserStoreCart(Product product, String email)
+	{
+		StoreUser storeUser = storeUserRepository.findStoreUserByEmail(email);
+
+		Set<CartItem> cartItems = storeUser.getCart();
+
+		for (CartItem cartItem : cartItems)
+		{
+			long productId = cartItem.getProduct().getId();
+			if (productId == product.getId())
+			{
+				cartItemRepository.delete(cartItem);
+				return;
+			}
+		}
 	}
 
 	private <T> T searchSet(Set<T> set, T key) // iterate over set to see if key exists
