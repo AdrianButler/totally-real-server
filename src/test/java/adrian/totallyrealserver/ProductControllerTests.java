@@ -24,7 +24,7 @@ public class ProductControllerTests
 	@Autowired
 	private ProductRepository productRepository;
 
-	private ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	@Test
 	public void testGetFeaturedProduct() throws Exception

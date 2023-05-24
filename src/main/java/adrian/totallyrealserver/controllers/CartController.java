@@ -52,7 +52,7 @@ public class CartController
 	}
 
 	@DeleteMapping("/cart")
-	public void removeFromCart(@RequestBody long productId, Principal principal) // requestBody should be ids
+	public void removeFromCart(@RequestBody long productId, Principal principal)
 	{
 		Product product = productRepository.findById(productId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product with given ID not found"));
@@ -60,7 +60,7 @@ public class CartController
 		cartService.deleteProductFromUserStoreCart(product, principal.getName());
 	}
 
-	@GetMapping("/cart-quantity")
+	@GetMapping("/cart/quantity")
 	public int getUserCartQuantity(Principal principal)
 	{
 		return cartService.getStoreUserCartQuantity(principal.getName());
