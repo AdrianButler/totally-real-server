@@ -1,12 +1,12 @@
 package adrian.totallyrealserver.controllers;
 
-import adrian.totallyrealserver.dtos.auth.VerifyRequest;
+import adrian.totallyrealserver.dtos.auth.LoginRequest;
 import adrian.totallyrealserver.dtos.auth.SignUpRequest;
+import adrian.totallyrealserver.dtos.auth.VerifyRequest;
 import adrian.totallyrealserver.models.StoreUser;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
 import adrian.totallyrealserver.services.EmailAuthService;
 import adrian.totallyrealserver.services.JwtService;
-import jakarta.validation.constraints.Email;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,7 +52,7 @@ public class AuthController
 	}
 
 	@PostMapping("/signup/verify")
-	@ResponseStatus(HttpStatus.CREATED) //TODO return DTO so the json has a property labeled token instead of raw string
+	@ResponseStatus(HttpStatus.CREATED)
 	public String verifySignUp(@RequestBody VerifyRequest verifyRequest)
 	{
 		StoreUser storeUser = verifyOTP(verifyRequest);
@@ -61,11 +61,11 @@ public class AuthController
 	}
 
 	@PostMapping("/login")
-	public void loginUser(@Email @RequestBody String email)
+	public void loginUser(@RequestBody LoginRequest loginRequest)
 	{
 		// Send OTP email to user
 
-		StoreUser storeUser = storeUserRepository.findStoreUserByEmail(email);
+		StoreUser storeUser = storeUserRepository.findStoreUserByEmail(loginRequest.getEmail());
 
 		if (storeUser == null)
 		{
