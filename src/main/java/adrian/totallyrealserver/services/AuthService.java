@@ -1,7 +1,12 @@
 package adrian.totallyrealserver.services;
 
+import adrian.totallyrealserver.dtos.auth.LoginRequest;
 import adrian.totallyrealserver.dtos.auth.SignUpRequest;
+import adrian.totallyrealserver.dtos.auth.VerifyRequest;
+import adrian.totallyrealserver.exceptions.OtpExpiredException;
+import adrian.totallyrealserver.exceptions.OtpInvalidException;
 import adrian.totallyrealserver.exceptions.UserAlreadyExistsException;
+import adrian.totallyrealserver.exceptions.UserDoesNotExistException;
 import adrian.totallyrealserver.models.StoreUser;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
 import jakarta.mail.MessagingException;
@@ -18,23 +23,26 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService
 {
-	final JavaMailSender mailSender;
+	private final JavaMailSender mailSender;
 
-	final PasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
 
-	final StoreUserRepository storeUserRepository;
+	private final StoreUserRepository storeUserRepository;
+
+	private final JwtService jwtService;
 
 	@Value("${MAIL_USERNAME}")
 	private String fromAddress;
 
-	public AuthService(JavaMailSender mailSender, PasswordEncoder passwordEncoder, StoreUserRepository storeUserRepository)
+	public AuthService(JavaMailSender mailSender, PasswordEncoder passwordEncoder, StoreUserRepository storeUserRepository, JwtService jwtService)
 	{
 		this.mailSender = mailSender;
 		this.passwordEncoder = passwordEncoder;
 		this.storeUserRepository = storeUserRepository;
+		this.jwtService = jwtService;
 	}
 
-	public void createUser(SignUpRequest signUpRequest) throws UserAlreadyExistsException
+	public void createUser(SignUpRequest signUpRequest)
 	{
 		String name = signUpRequest.getName();
 		String email = signUpRequest.getEmail();
@@ -48,6 +56,59 @@ public class AuthService
 		storeUserRepository.save(newUser);
 
 		sendOneTimePassword(newUser);
+	}
+
+	public void loginUser(LoginRequest loginRequest)
+	{
+		String email = loginRequest.getEmail();
+
+		StoreUser storeUser = storeUserRepository.findStoreUserByEmail(email);
+
+		if (storeUser == null)
+		{
+			throw new UserDoesNotExistException();
+		}
+
+		sendOneTimePassword(storeUser);
+	}
+
+	public boolean otpExpired(Date otpRequestDate)
+	{
+		final long OTP_DURATION = 300000; // five minutes
+
+		long otpExpiration = otpRequestDate.getTime() + OTP_DURATION;
+
+		return otpExpiration < new Date().getTime();
+	}
+
+	private void saveOneTimePassword(StoreUser storeUser, String oneTimePassword)
+	{
+		String encodedOneTimePassword = passwordEncoder.encode(oneTimePassword);
+
+		storeUser.setOneTimePassword(encodedOneTimePassword);
+		storeUser.setOtpRequestDate(new Date());
+
+		storeUserRepository.save(storeUser);
+	}
+
+	public String verifyOTP(VerifyRequest verifyRequest)
+	{
+		String email = verifyRequest.getEmail();
+		String oneTimePassword = verifyRequest.getOneTimePassword();
+
+		StoreUser storeUser = storeUserRepository.findStoreUserByEmail(email);
+
+		if (otpExpired(storeUser.getOtpRequestDate()))
+		{
+			throw new OtpExpiredException();
+		}
+
+		if (!passwordEncoder.matches(oneTimePassword, storeUser.getOneTimePassword()))
+		{
+			throw new OtpInvalidException();
+		}
+
+		return jwtService.generateToken(storeUser);
 	}
 
 	private void sendOneTimePassword(StoreUser storeUser)
@@ -76,25 +137,6 @@ public class AuthService
 		}
 
 		mailSender.send(message);
-	}
-
-	public boolean checkIfOtpExpired(Date otpRequestDate)
-	{
-		final long OTP_DURATION = 300000; // five minutes
-
-		long otpExpiration = otpRequestDate.getTime() + OTP_DURATION;
-
-		return otpExpiration < new Date().getTime();
-	}
-
-	private void saveOneTimePassword(StoreUser storeUser, String oneTimePassword)
-	{
-		String encodedOneTimePassword = passwordEncoder.encode(oneTimePassword);
-
-		storeUser.setOneTimePassword(encodedOneTimePassword);
-		storeUser.setOtpRequestDate(new Date());
-
-		storeUserRepository.save(storeUser);
 	}
 
 }

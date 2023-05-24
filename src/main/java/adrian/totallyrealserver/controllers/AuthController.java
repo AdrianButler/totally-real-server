@@ -3,8 +3,10 @@ package adrian.totallyrealserver.controllers;
 import adrian.totallyrealserver.dtos.auth.LoginRequest;
 import adrian.totallyrealserver.dtos.auth.SignUpRequest;
 import adrian.totallyrealserver.dtos.auth.VerifyRequest;
+import adrian.totallyrealserver.exceptions.OtpExpiredException;
+import adrian.totallyrealserver.exceptions.OtpInvalidException;
 import adrian.totallyrealserver.exceptions.UserAlreadyExistsException;
-import adrian.totallyrealserver.models.StoreUser;
+import adrian.totallyrealserver.exceptions.UserDoesNotExistException;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
 import adrian.totallyrealserver.services.AuthService;
 import adrian.totallyrealserver.services.JwtService;
@@ -52,54 +54,43 @@ public class AuthController
 
 	@PostMapping("/signup/verify")
 	@ResponseStatus(HttpStatus.CREATED)
-	public String verifySignUp(@RequestBody VerifyRequest verifyRequest)
+	public String verifySignUp(@RequestBody VerifyRequest verifyRequest) //TODO refactor this to make sure accounts are verified before letting them login
 	{
-		StoreUser storeUser = verifyOTP(verifyRequest);
-
-		return jwtService.generateToken(storeUser);
+		try
+		{
+			return authService.verifyOTP(verifyRequest);
+		} catch (OtpExpiredException | OtpInvalidException exception)
+		{
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, exception.getMessage());
+		}
 	}
 
 	@PostMapping("/login")
 	public void loginUser(@RequestBody LoginRequest loginRequest)
 	{
 		// Send OTP email to user
-
-		StoreUser storeUser = storeUserRepository.findStoreUserByEmail(loginRequest.getEmail());
-
-		if (storeUser == null)
+		try
 		{
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
+			authService.loginUser(loginRequest);
+		}
+		catch (UserDoesNotExistException exception)
+		{
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage());
 		}
 
-		authService.sendOneTimePassword(storeUser);
 	}
 
 	@PostMapping("/login/verify")
 	public String verifyLogin(@RequestBody VerifyRequest verifyRequest)
 	{
-		StoreUser storeUser = verifyOTP(verifyRequest);
-
-		return jwtService.generateToken(storeUser);
-	}
-
-	private StoreUser verifyOTP(@RequestBody VerifyRequest verifyRequest) // TODO refactor this to email service
-	{
-		String email = verifyRequest.getEmail();
-		String oneTimePassword = verifyRequest.getOneTimePassword();
-
-		StoreUser storeUser = storeUserRepository.findStoreUserByEmail(email);
-
-		if (authService.checkIfOtpExpired(storeUser.getOtpRequestDate()))
+		try
 		{
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "One time password has expired");
+			return authService.verifyOTP(verifyRequest);
+		} catch (OtpExpiredException | OtpInvalidException exception)
+		{
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, exception.getMessage());
 		}
 
-		if (!passwordEncoder.matches(oneTimePassword, storeUser.getOneTimePassword()))
-		{
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "One time password was incorrect");
-		}
-
-		return storeUser;
 	}
 
 }

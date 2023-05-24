@@ -1,6 +1,6 @@
 package adrian.totallyrealserver.exceptions;
 
-public class UserAlreadyExistsException extends Exception
+public class UserAlreadyExistsException extends RuntimeException
 {
 	public UserAlreadyExistsException()
 	{
