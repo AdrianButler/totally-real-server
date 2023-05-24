@@ -15,7 +15,7 @@ jobs:
           java-version: '19'
           distribution: 'temurin'
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots package -DDB_DATASOURCE=${{ secrets.DB_DATASOURCE }} -DDB_USERNAME=${{ secrets.DB_USERNAME }} -DDB_PASSWORD=${{ secrets.DB_PASSWORD }} -DMAIL_USERNAME=${{ secrets.MAIL_USERNAME }} -DMAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }} -DJWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+        run: mvn clean test
         env:
           DB_DATASOURCE: ${{ secrets.DB_DATASOURCE }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
