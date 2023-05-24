@@ -3,9 +3,10 @@ package adrian.totallyrealserver.controllers;
 import adrian.totallyrealserver.dtos.auth.LoginRequest;
 import adrian.totallyrealserver.dtos.auth.SignUpRequest;
 import adrian.totallyrealserver.dtos.auth.VerifyRequest;
+import adrian.totallyrealserver.exceptions.UserAlreadyExistsException;
 import adrian.totallyrealserver.models.StoreUser;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
-import adrian.totallyrealserver.services.EmailAuthService;
+import adrian.totallyrealserver.services.AuthService;
 import adrian.totallyrealserver.services.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,16 +23,16 @@ public class AuthController
 {
 	private final StoreUserRepository storeUserRepository;
 
-	private final EmailAuthService emailAuthService;
+	private final AuthService authService;
 
 	private final PasswordEncoder passwordEncoder;
 
 	private final JwtService jwtService;
 
-	public AuthController(StoreUserRepository storeUserRepository, EmailAuthService emailAuthService, PasswordEncoder passwordEncoder, JwtService jwtService)
+	public AuthController(StoreUserRepository storeUserRepository, AuthService authService, PasswordEncoder passwordEncoder, JwtService jwtService)
 	{
 		this.storeUserRepository = storeUserRepository;
-		this.emailAuthService = emailAuthService;
+		this.authService = authService;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtService = jwtService;
 	}
@@ -40,15 +41,13 @@ public class AuthController
 	@ResponseStatus(HttpStatus.CREATED)
 	public void createUser(@RequestBody SignUpRequest signUpRequest)
 	{
-		if (storeUserRepository.existsByEmail(signUpRequest.getEmail())) // check if user with email already exists
+		try
 		{
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
+			authService.createUser(signUpRequest);
+		} catch (UserAlreadyExistsException exception)
+		{
+			throw new ResponseStatusException(HttpStatus.CONFLICT, exception.getMessage());
 		}
-
-		StoreUser newUser = new StoreUser(signUpRequest.getName(), signUpRequest.getEmail());
-		storeUserRepository.save(newUser);
-
-		emailAuthService.sendOneTimePassword(newUser);
 	}
 
 	@PostMapping("/signup/verify")
@@ -72,7 +71,7 @@ public class AuthController
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
 		}
 
-		emailAuthService.sendOneTimePassword(storeUser);
+		authService.sendOneTimePassword(storeUser);
 	}
 
 	@PostMapping("/login/verify")
@@ -90,7 +89,7 @@ public class AuthController
 
 		StoreUser storeUser = storeUserRepository.findStoreUserByEmail(email);
 
-		if (emailAuthService.checkIfOtpExpired(storeUser.getOtpRequestDate()))
+		if (authService.checkIfOtpExpired(storeUser.getOtpRequestDate()))
 		{
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "One time password has expired");
 		}

@@ -1,5 +1,7 @@
 package adrian.totallyrealserver.services;
 
+import adrian.totallyrealserver.dtos.auth.SignUpRequest;
+import adrian.totallyrealserver.exceptions.UserAlreadyExistsException;
 import adrian.totallyrealserver.models.StoreUser;
 import adrian.totallyrealserver.repositories.StoreUserRepository;
 import jakarta.mail.MessagingException;
@@ -14,7 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmailAuthService
+public class AuthService
 {
 	final JavaMailSender mailSender;
 
@@ -25,14 +27,30 @@ public class EmailAuthService
 	@Value("${MAIL_USERNAME}")
 	private String fromAddress;
 
-	public EmailAuthService(JavaMailSender mailSender, PasswordEncoder passwordEncoder, StoreUserRepository storeUserRepository)
+	public AuthService(JavaMailSender mailSender, PasswordEncoder passwordEncoder, StoreUserRepository storeUserRepository)
 	{
 		this.mailSender = mailSender;
 		this.passwordEncoder = passwordEncoder;
 		this.storeUserRepository = storeUserRepository;
 	}
 
-	public void sendOneTimePassword(StoreUser storeUser)
+	public void createUser(SignUpRequest signUpRequest) throws UserAlreadyExistsException
+	{
+		String name = signUpRequest.getName();
+		String email = signUpRequest.getEmail();
+
+		if (storeUserRepository.existsByEmail(email)) // check if user with email already exists
+		{
+			throw new UserAlreadyExistsException();
+		}
+
+		StoreUser newUser = new StoreUser(name, email);
+		storeUserRepository.save(newUser);
+
+		sendOneTimePassword(newUser);
+	}
+
+	private void sendOneTimePassword(StoreUser storeUser)
 	{
 		String oneTimePassword = RandomString.make(8);
 
