@@ -27,7 +27,7 @@ public class ProductControllerTests
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	@Test
-	public void testGetFeaturedProduct() throws Exception
+	public void testGetFeaturedProduct() throws Exception //TODO DELETE THESE TESTS AND WRITE THEM PROPERLY
 	{
 		MvcResult results = mockMvc.perform(MockMvcRequestBuilders.get("/product/featured"))
 				.andReturn();
