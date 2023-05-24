@@ -7,11 +7,8 @@ import adrian.totallyrealserver.exceptions.OtpExpiredException;
 import adrian.totallyrealserver.exceptions.OtpInvalidException;
 import adrian.totallyrealserver.exceptions.UserAlreadyExistsException;
 import adrian.totallyrealserver.exceptions.UserDoesNotExistException;
-import adrian.totallyrealserver.repositories.StoreUserRepository;
 import adrian.totallyrealserver.services.AuthService;
-import adrian.totallyrealserver.services.JwtService;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,20 +20,11 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/auth")
 public class AuthController
 {
-	private final StoreUserRepository storeUserRepository;
-
 	private final AuthService authService;
 
-	private final PasswordEncoder passwordEncoder;
-
-	private final JwtService jwtService;
-
-	public AuthController(StoreUserRepository storeUserRepository, AuthService authService, PasswordEncoder passwordEncoder, JwtService jwtService)
+	public AuthController(AuthService authService)
 	{
-		this.storeUserRepository = storeUserRepository;
 		this.authService = authService;
-		this.passwordEncoder = passwordEncoder;
-		this.jwtService = jwtService;
 	}
 
 	@PostMapping("/signup")
